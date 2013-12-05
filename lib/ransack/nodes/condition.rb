@@ -1,18 +1,23 @@
 module Ransack
   module Nodes
     class Condition < Node
-      i18n_word :attribute, :predicate, :combinator, :value
-      i18n_alias :a => :attribute, :p => :predicate, :m => :combinator, :v => :value
+      i18n_word :attribute, :predicate, :combinator, :value, :display
+      i18n_alias :a => :attribute, :p => :predicate, :m => :combinator, :v => :value, :d => :display
 
       attr_reader :predicate
+      attr_accessor :display
+
 
       class << self
         def extract(context, key, values)
           attributes, predicate = extract_attributes_and_predicate(key)
+ 
           if attributes.size > 0
             combinator = key.match(/_(or|and)_/) ? $1 : nil
             condition = self.new(context)
+
             condition.build(
+              :d => display,
               :a => attributes,
               :p => predicate.name,
               :m => combinator,
@@ -36,8 +41,13 @@ module Ransack
         end
       end
 
+
+      alias :d= :display=
+      alias :d :display
+
+
       def valid?
-        attributes.detect(&:valid?) && predicate && valid_arity? && predicate.validate(values, default_type) && valid_combinator?
+        attributes.detect(&:valid?) && predicate && valid_arity? && predicate.validate(values, default_type) && valid_combinator? && (display=="1" || predicate.name != "bypass")
       end
 
       def valid_arity?
@@ -49,16 +59,19 @@ module Ransack
       end
       alias :a :attributes
 
+
+
       def attributes=(args)
         case args
         when Array
           args.each do |attr|
-            attr = Attribute.new(@context, attr)
+            attr = Attribute.new(@context, attr, display)
             self.attributes << attr if attr.valid?
           end
         when Hash
           args.each do |index, attrs|
-            attr = Attribute.new(@context, attrs[:name])
+
+            attr = Attribute.new(@context, attrs[:name], display)
             self.attributes << attr if attr.valid?
           end
         else
@@ -66,6 +79,7 @@ module Ransack
         end
       end
       alias :a= :attributes=
+
 
       def values
         @values ||= []
@@ -101,10 +115,12 @@ module Ransack
       alias :m :combinator
 
       def build_attribute(name = nil)
-        Attribute.new(@context, name).tap do |attribute|
+
+        Attribute.new(@context, name, display).tap do |attribute|
           self.attributes << attribute
         end
       end
+
 
       def build_value(val = nil)
         Value.new(@context, val).tap do |value|
@@ -118,7 +134,7 @@ module Ransack
 
       def build(params)
         params.with_indifferent_access.each do |key, value|
-          if key.match(/^(a|v|p|m)$/)
+          if key.match(/^(a|v|p|m|d)$/)
             self.send("#{key}=", value)
           end
         end
@@ -147,6 +163,7 @@ module Ransack
         [attributes, predicate, values, combinator].hash
       end
 
+
       def predicate_name=(name)
         self.predicate = Predicate.named(name)
       end
@@ -164,7 +181,9 @@ module Ransack
 
       def arel_predicate
         predicates = attributes.map do |attr|
-          attr.attr.send(predicate.arel_predicate, formatted_values_for_attribute(attr))
+          if predicate.arel_predicate != "bypass"
+            attr.attr.send(predicate.arel_predicate, formatted_values_for_attribute(attr))
+          end
         end
 
         if predicates.size > 1
@@ -201,7 +220,7 @@ module Ransack
       end
 
       def inspect
-        data =[['attributes', a.try(:map, &:name)], ['predicate', p], ['combinator', m], ['values', v.try(:map, &:value)]].reject { |e|
+        data =[['attributes', a.try(:map, &:name)], ['eval_attributes', a.try(:map,&:eval_attribute)], ['fields', a.try(:map,&:field)], ['diplays', a.try(:map,&:display)], ['predicate', p], ['combinator', m], ['values', v.try(:map, &:value)]].reject { |e|
           e[1].blank?
         }.map { |v| "#{v[0]}: #{v[1]}" }.join(', ')
         "Condition <#{data}>"
