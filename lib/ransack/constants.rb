@@ -3,7 +3,7 @@ module Ransack
     TRUE_VALUES = [true, 1, '1', 't', 'T', 'true', 'TRUE'].to_set
     FALSE_VALUES = [false, 0, '0', 'f', 'F', 'false', 'FALSE'].to_set
 
-    AREL_PREDICATES = %w(eq not_eq matches does_not_match lt lteq gt gteq in not_in)
+    AREL_PREDICATES = %w(bypass eq not_eq matches does_not_match lt lteq gt gteq in not_in)
 
     DERIVED_PREDICATES = [
       ['cont', {:arel_predicate => 'matches', :formatter => proc {|v| "%#{escape_wildcards(v)}%"}}],
