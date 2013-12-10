@@ -220,7 +220,7 @@ module Ransack
       end
 
       def inspect
-        data =[['attributes', a.try(:map, &:name)], ['eval_attributes', a.try(:map,&:eval_attribute)], ['fields', a.try(:map,&:field)], ['diplays', a.try(:map,&:display)], ['predicate', p], ['combinator', m], ['values', v.try(:map, &:value)]].reject { |e|
+        data =[['attributes', a.try(:map, &:name)], ['fields', a.try(:map,&:field)], ['diplays', a.try(:map,&:display)], ['predicate', p], ['combinator', m], ['values', v.try(:map, &:value)]].reject { |e|
           e[1].blank?
         }.map { |v| "#{v[0]}: #{v[1]}" }.join(', ')
         "Condition <#{data}>"
