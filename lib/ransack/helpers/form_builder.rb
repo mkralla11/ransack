@@ -104,7 +104,6 @@ module Ransack
       end
 
       def search_fields(name, args, block)
-        debugger
         args << {} unless args.last.is_a?(Hash)
         args.last[:builder] ||= options[:builder]
         args.last[:parent_builder] = self
