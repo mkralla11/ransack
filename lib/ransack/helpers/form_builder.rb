@@ -183,6 +183,7 @@ module Ransack
       end
 
       def attr_from_base_and_column(base, column)
+        debugger
         [base, column].reject {|v| v.blank?}.join('_')
       end
 
