@@ -104,6 +104,7 @@ module Ransack
       end
 
       def search_fields(name, args, block)
+        debugger
         args << {} unless args.last.is_a?(Hash)
         args.last[:builder] ||= options[:builder]
         args.last[:parent_builder] = self
@@ -183,7 +184,6 @@ module Ransack
       end
 
       def attr_from_base_and_column(base, column)
-        debugger
         [base, column].reject {|v| v.blank?}.join('_')
       end
 
