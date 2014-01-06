@@ -34,6 +34,8 @@ module Ransack
           base.send("#{key}=", value) if base.attribute_method?(key)
         end
       end
+      debugger
+      test = 1
       self
     end
 
@@ -98,6 +100,7 @@ module Ransack
 
     def collapse_multiparameter_attributes!(attrs)
       attrs.keys.each do |k|
+        debugger
         if k.include?("(")
           real_attribute, position = k.split(/\(|\)/)
           cast = %w(a s i).include?(position.last) ? position.last : nil

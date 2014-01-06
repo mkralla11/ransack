@@ -121,8 +121,6 @@ module Ransack
         Attribute.new(@context, name, display).tap do |attribute|
           self.attributes << attribute
         end
-        debugger
-        test = 1
       end
 
 
