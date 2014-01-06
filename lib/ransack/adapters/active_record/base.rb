@@ -20,7 +20,6 @@ module Ransack
         end
 
         def ransackable_attributes(auth_object = nil)
-          debugger
           column_names + _ransackers.keys
         end
 
