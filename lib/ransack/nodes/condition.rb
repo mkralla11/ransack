@@ -48,6 +48,8 @@ module Ransack
 
       def valid?
         attributes.detect(&:valid?) && predicate && valid_arity? && predicate.validate(values, default_type) && valid_combinator? && (display=="1" || predicate.name != "bypass")
+        debugger
+        test = 1
       end
 
       def valid_arity?
@@ -119,6 +121,8 @@ module Ransack
         Attribute.new(@context, name, display).tap do |attribute|
           self.attributes << attribute
         end
+        debugger
+        test = 1
       end
 
 
