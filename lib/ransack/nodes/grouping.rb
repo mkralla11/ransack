@@ -82,7 +82,7 @@ module Ransack
         attrs = opts[:attributes] || 1
         vals = opts[:values] || 1
         condition = Condition.new(@context)
-        condition.predicate = Predicate.named('eq')
+        # condition.predicate = Predicate.named('eq')
         attrs.times { condition.build_attribute }
         vals.times { condition.build_value }
         condition
@@ -180,14 +180,14 @@ module Ransack
 
       def strip_predicate_and_index(str)
         string = str.split(/\(/).first
-        string = strip_before_type_cast(string)
+        # string = strip_before_type_cast(string)
         Predicate.detect_and_strip_from_string!(string)
         string
       end
 
-      def strip_before_type_cast(str)
-        str.split("_before_type_cast").first
-      end
+      # def strip_before_type_cast(str)
+      #   str.split("_before_type_cast").first
+      # end
 
     end
   end
