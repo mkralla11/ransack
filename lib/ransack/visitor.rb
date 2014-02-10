@@ -47,6 +47,10 @@ module Ransack
       object.attr.send(object.dir) if object.valid?
     end
 
+    def visit_Ransack_Nodes_Display(object)
+      object.select_statement
+    end
+
     def quoted?(object)
       case object
       when Arel::Nodes::SqlLiteral, Bignum, Fixnum

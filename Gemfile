@@ -6,6 +6,7 @@ gem 'rake'
 rails = ENV['RAILS'] || '4-0-stable'
 
 gem 'arel'
+gem 'debugger'
 
 case rails
 when /\// # A path

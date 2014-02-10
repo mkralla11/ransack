@@ -31,7 +31,11 @@ module Ransack
 
         def evaluate(search, opts = {})
           viz = Visitor.new
+
           relation = @object.where(viz.accept(search.base))
+          if search.displays.any?
+            relation = relation.select(viz.accept(search.displays))
+          end
           if search.sorts.any?
             relation = relation.except(:order).reorder(viz.accept(search.sorts))
           end

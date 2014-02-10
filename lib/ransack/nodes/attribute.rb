@@ -53,25 +53,6 @@ module Ransack
         "Attribute <#{name}>, Display <#{display}>"
       end
 
-      # private
-      # def attribute_to_eval_string(query)
-      #   if !query.blank?
-      #     all_associations = []
-
-      #     context.base.active_record.reflect_on_all_associations.map { |assoc| all_associations << assoc.name.to_s}
-
-      #     @match = all_associations.detect { |assoc| query =~ Regexp.new("^#{assoc}") }
-      #     @field = nil
-
-      #     if !@match.blank?
-      #       @field = query.gsub(@match + "_", "")
-      #       query = query.gsub(@match + "_", @match + "." )
-      #     else
-      #       @field = query
-      #     end
-          
-      #     return query, @field
-      #   end
 
     end
   end
