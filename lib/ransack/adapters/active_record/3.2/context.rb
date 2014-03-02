@@ -36,6 +36,9 @@ module Ransack
           if search.displays.any?
             relation = relation.select(viz.accept(search.displays))
           end
+          if search.uniqs.any?
+            relation = relation.group(viz.accept(search.uniqs))
+          end
           if search.sorts.any?
             relation = relation.except(:order).reorder(viz.accept(search.sorts))
           end

@@ -142,6 +142,10 @@ module Ransack
         @template.check_box(@object_name, :d, objectify_options(options), checked_value = "1", @default_options.merge(html_options))
       end
 
+      def uniq_checkbox(options = {}, html_options = {})
+        @template.check_box(@object_name, :u, objectify_options(options), checked_value = "1", @default_options.merge(html_options))
+      end
+
       def combinator_select(options = {}, html_options = {})
         @template.collection_select(
           @object_name, :m, combinator_choices, :first, :last,

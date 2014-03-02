@@ -17,11 +17,14 @@ module Ransack
     def initialize(object, params = {}, options = {})
       params ||= {}
       @display_attrs = []
+      @uniq_attrs = []
       @context = Context.for(object, options)
       @context.auth_object = options[:auth_object]
       @base = Nodes::Grouping.new(@context, 'and')
       build(params.with_indifferent_access)
-      build_displays(params.with_indifferent_access)
+      recurse_hash_to_find_viewables(params.with_indifferent_access)
+      build_displays
+      build_uniqs
     end
 
     def result(opts = {})
@@ -40,10 +43,40 @@ module Ransack
       self
     end
 
-    def build_displays(params)
-      recurse_hash_to_find_displays(params)
+    def build_displays
       @display_attrs.each do |name|
         displays << Nodes::Display.extract(@context, name)
+      end
+    end
+
+    def build_uniqs
+      @uniq_attrs.each do |name|
+        uniqs << Nodes::Uniq.extract(@context, name)
+      end
+    end
+
+    def displays
+      @displays ||= []
+    end
+    alias :d :displays
+
+    def uniqs
+      @uniqs ||= []
+    end
+    alias :u :uniqs
+
+
+    def recurse_hash_to_find_viewables(obj)
+      if obj.is_a?(Hash)
+        obj.each_pair do |key, value|
+          if key == "d" and value == "1"
+            @display_attrs << obj['a']['0']['name'] if obj.try(:[], 'a').try(:[], '0').try(:[], 'name').present?
+          elsif key == "u" and value == "1"
+            @uniq_attrs << obj['a']['0']['name'] if obj.try(:[], 'a').try(:[], '0').try(:[], 'name').present?
+          else
+            recurse_hash_to_find_viewables(value)
+          end
+        end
       end
     end
 
@@ -53,24 +86,6 @@ module Ransack
           :humanize=>(disp.table + "_" + disp.field).titleize,
           :attribute=>disp.attr
         }
-      end
-    end
-
-    def displays
-      @displays ||= []
-    end
-    alias :d :displays
-
-
-    def recurse_hash_to_find_displays(obj)
-      if obj.is_a?(Hash)
-        obj.each_pair do |key, value|
-          if key == "d" and value == "1"
-            @display_attrs << obj['a']['0']['name'] if obj and obj['a'] and obj['a']['0'] and obj['a']['0']['name']
-          else
-            recurse_hash_to_find_displays(value)
-          end
-        end
       end
     end
 

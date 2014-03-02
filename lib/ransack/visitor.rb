@@ -51,6 +51,11 @@ module Ransack
       object.select_statement
     end
 
+    def visit_Ransack_Nodes_Uniq(object)
+      object.group_by_statement
+    end
+
+
     def quoted?(object)
       case object
       when Arel::Nodes::SqlLiteral, Bignum, Fixnum

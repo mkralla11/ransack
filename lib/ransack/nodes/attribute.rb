@@ -5,17 +5,18 @@ module Ransack
 
       attr_reader :name
       # attr_accessor :eval_attribute, :display, :field
-      attr_accessor :display
+      attr_accessor :display, :uniq
 
       delegate :blank?, :present?, :==, :to => :name
       delegate :engine, :to => :context
 
 
-      def initialize(context, name = nil, display=nil)
+      def initialize(context, name = nil, display=nil, uniq=nil)
         super(context)
         self.name = name unless name.blank?
         #self.eval_attribute, self.field = attribute_to_eval_string(name) 
         self.display = display
+        self.uniq = uniq
       end
 
       def name=(name)
@@ -50,7 +51,7 @@ module Ransack
       end
 
       def inspect
-        "Attribute <#{name}>, Display <#{display}>"
+        "Attribute <#{name}>, Display <#{display}>, Uniq <#{uniq}>"
       end
 
 

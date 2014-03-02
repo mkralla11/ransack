@@ -1,11 +1,11 @@
 module Ransack
   module Nodes
     class Condition < Node
-      i18n_word :attribute, :predicate, :combinator, :value, :display
-      i18n_alias :a => :attribute, :p => :predicate, :m => :combinator, :v => :value, :d => :display
+      i18n_word :attribute, :predicate, :combinator, :value, :display, :uniq
+      i18n_alias :a => :attribute, :p => :predicate, :m => :combinator, :v => :value, :d => :display, :u => :uniq
 
       attr_reader :predicate
-      attr_accessor :display
+      attr_accessor :display, :uniq
 
 
       class << self
@@ -18,6 +18,7 @@ module Ransack
 
             condition.build(
               :d => display,
+              :u => uniq,
               :a => attributes,
               :p => predicate.name,
               :m => combinator,
@@ -45,9 +46,11 @@ module Ransack
       alias :d= :display=
       alias :d :display
 
+      alias :u= :uniq=
+      alias :u :uniq
 
       def valid?
-        attributes.detect(&:valid?) && predicate && valid_arity? && predicate.validate(values, default_type) && valid_combinator? && (display=="1" || predicate.name != "bypass")
+        attributes.detect(&:valid?) && predicate && valid_arity? && predicate.validate(values, default_type) && valid_combinator? && (display=="1" || uniq=="1" || predicate.name != "bypass")
       end
 
       def valid_arity?
@@ -65,13 +68,13 @@ module Ransack
         case args
         when Array
           args.each do |attr|
-            attr = Attribute.new(@context, attr, display)
+            attr = Attribute.new(@context, attr, display, uniq)
             self.attributes << attr if attr.valid?
           end
         when Hash
           args.each do |index, attrs|
 
-            attr = Attribute.new(@context, attrs[:name], display)
+            attr = Attribute.new(@context, attrs[:name], display, uniq)
             self.attributes << attr if attr.valid?
           end
         else
@@ -116,7 +119,7 @@ module Ransack
 
       def build_attribute(name = nil)
 
-        Attribute.new(@context, name, display).tap do |attribute|
+        Attribute.new(@context, name, display, uniq).tap do |attribute|
           self.attributes << attribute
         end
       end
@@ -134,7 +137,7 @@ module Ransack
 
       def build(params)
         params.with_indifferent_access.each do |key, value|
-          if key.match(/^(a|v|p|m|d)$/)
+          if key.match(/^(a|v|p|m|d|u)$/)
             self.send("#{key}=", value)
           end
         end
@@ -220,7 +223,7 @@ module Ransack
       end
 
       def inspect
-        data =[['attributes', a.try(:map, &:name)], ['diplays', a.try(:map,&:display)], ['predicate', p], ['combinator', m], ['values', v.try(:map, &:value)]].reject { |e|
+        data =[['attributes', a.try(:map, &:name)], ['diplays', a.try(:map,&:display)],['uniqs', a.try(:map,&:uniq)], ['predicate', p], ['combinator', m], ['values', v.try(:map, &:value)]].reject { |e|
           e[1].blank?
         }.map { |v| "#{v[0]}: #{v[1]}" }.join(', ')
         "Condition <#{data}>"
