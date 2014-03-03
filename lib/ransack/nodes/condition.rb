@@ -11,14 +11,11 @@ module Ransack
       class << self
         def extract(context, key, values)
           attributes, predicate = extract_attributes_and_predicate(key)
- 
           if attributes.size > 0
             combinator = key.match(/_(or|and)_/) ? $1 : nil
             condition = self.new(context)
 
             condition.build(
-              :d => display,
-              :u => uniq,
               :a => attributes,
               :p => predicate.name,
               :m => combinator,
