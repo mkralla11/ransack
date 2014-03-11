@@ -83,7 +83,7 @@ module Ransack
     def headers
       @headers ||= displays.collect do |disp|
         {
-          :humanize=>(disp.table + "_" + disp.field).titleize,
+          :humanize=>(disp.table.table_name + "_" + disp.field.name).titleize,
           :attribute=>disp.attr
         }
       end

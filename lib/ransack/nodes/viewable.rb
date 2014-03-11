@@ -5,9 +5,8 @@ module Ransack
 
       class << self
         def extract(context, str)
-          ar_col = context.contextualize(str)
-          table = ar_col.relation.name
-          field = ar_col.name
+          field = context.contextualize(str)
+          table = ActiveRecord::Base.send(:descendants).detect { |m| m.table_name == field.relation.name }
           self.new(context).build(:attr=>str, :table=>table, :field=>field)
         end
       end
