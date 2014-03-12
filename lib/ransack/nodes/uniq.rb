@@ -6,7 +6,7 @@ module Ransack
         if @table._ransackers.has_key?( @field.name )
         # check if we should use the 'ransacker' virtual attribute
           aggregate_column
-        elsif ransackable_attributes.include?( @field.name )
+        elsif @table.ransackable_attributes.include?( @field.name )
         # check if it is a searchable column before allowing the group_by
           existing_column
         end
