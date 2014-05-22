@@ -131,15 +131,6 @@ module Ransack
           :m, combinator_choices, options, html_options)
       end
 
-      private
-
-      def template_grouped_collection_select(collection, options, html_options)
-        @template.grouped_collection_select(
-          @object_name, :name, collection, :last, :first, :first, :last,
-          objectify_options(options), @default_options.merge(html_options)
-          )
-      end
-
 
       def display_checkbox(options = {}, html_options = {})
         @template.check_box(@object_name, :d, objectify_options(options), checked_value = "1", @default_options.merge(html_options))
@@ -147,6 +138,15 @@ module Ransack
 
       def uniq_checkbox(options = {}, html_options = {})
         @template.check_box(@object_name, :u, objectify_options(options), checked_value = "1", @default_options.merge(html_options))
+      end
+
+      private
+
+      def template_grouped_collection_select(collection, options, html_options)
+        @template.grouped_collection_select(
+          @object_name, :name, collection, :last, :first, :first, :last,
+          objectify_options(options), @default_options.merge(html_options)
+          )
       end
 
 
