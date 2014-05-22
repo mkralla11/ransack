@@ -1,19 +1,22 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
 
-rails = ENV['RAILS'] || '4-0-stable'
+rails = ENV['RAILS'] || '4-1-stable'
 
-gem 'arel'
+
+
 gem 'debugger'
+gem 'polyamorous', '~> 1.0.0'
+
 
 case rails
 when /\// # A path
-  gem 'activesupport', :path => "#{rails}/activesupport"
-  gem 'activemodel', :path => "#{rails}/activemodel"
-  gem 'activerecord', :path => "#{rails}/activerecord"
-  gem 'actionpack', :path => "#{rails}/activerecord"
+  gem 'activesupport', path: "#{rails}/activesupport"
+  gem 'activemodel', path: "#{rails}/activemodel"
+  gem 'activerecord', path: "#{rails}/activerecord"
+  gem 'actionpack', path: "#{rails}/activerecord"
 when /^v/ # A tagged version
   git 'git://github.com/rails/rails.git', :tag => rails do
     gem 'activesupport'
@@ -27,5 +30,8 @@ else
     gem 'activemodel'
     gem 'activerecord'
     gem 'actionpack'
+  end
+  if rails == '3-0-stable'
+    gem 'mysql2', '< 0.3'
   end
 end

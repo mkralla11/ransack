@@ -15,9 +15,12 @@ module Ransack
              :translate, :to => :base
 
     def initialize(object, params = {}, options = {})
-      params ||= {}
       @display_attrs = []
       @uniq_attrs = []
+
+      params = {} unless params.is_a?(Hash)
+      (params ||= {})
+      .delete_if { |k, v| [*v].all? { |i| i.blank? && i != false } }
       @context = Context.for(object, options)
       @context.auth_object = options[:auth_object]
       @base = Nodes::Grouping.new(@context, 'and')
@@ -33,11 +36,12 @@ module Ransack
 
     def build(params)
       collapse_multiparameter_attributes!(params).each do |key, value|
-        case key
-        when 's', 'sorts'
+        if ['s', 'sorts'].include?(key)
           send("#{key}=", value)
-        else
-          base.send("#{key}=", value) if base.attribute_method?(key)
+        elsif base.attribute_method?(key)
+          base.send("#{key}=", value)
+        elsif !Ransack.options[:ignore_unknown_conditions]
+          raise ArgumentError, "Invalid search term #{key}"
         end
       end
       self
@@ -94,7 +98,11 @@ module Ransack
       case args
       when Array
         args.each do |sort|
-          sort = Nodes::Sort.extract(@context, sort)
+          if sort.kind_of? Hash
+            sort = Nodes::Sort.new(@context).build(sort)
+          else
+            sort = Nodes::Sort.extract(@context, sort)
+          end
           self.sorts << sort
         end
       when Hash
@@ -105,7 +113,8 @@ module Ransack
       when String
         self.sorts = [args]
       else
-        raise ArgumentError, "Invalid argument (#{args.class}) supplied to sorts="
+        raise ArgumentError,
+        "Invalid argument (#{args.class}) supplied to sorts="
       end
     end
     alias :s= :sorts=
@@ -123,14 +132,6 @@ module Ransack
 
     def new_sort(opts = {})
       Nodes::Sort.new(@context).build(opts)
-    end
-
-    def respond_to?(method_id, include_private = false)
-      super or begin
-        method_name = method_id.to_s
-        writer = method_name.sub!(/\=$/, '')
-        base.attribute_method?(method_name) ? true : false
-      end
     end
 
     def method_missing(method_id, *args)
