@@ -81,6 +81,7 @@ module Ransack
       end
 
       def new_condition(opts = {})
+        opts ||= {}
         attrs = opts[:attributes] || 1
         vals = opts[:values] || 1
         condition = Condition.new(@context)

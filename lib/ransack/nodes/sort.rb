@@ -14,6 +14,7 @@ module Ransack
       end
 
       def build(params)
+        params ||= {}
         params.with_indifferent_access.each do |key, value|
           if key.match(/^(name|dir)$/)
             self.send("#{key}=", value)

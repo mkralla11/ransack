@@ -17,7 +17,6 @@ module Ransack
     def initialize(object, params = {}, options = {})
       @display_attrs = []
       @uniq_attrs = []
-
       params = {} unless params.is_a?(Hash)
       (params ||= {})
       .delete_if { |k, v| [*v].all? { |i| i.blank? && i != false } }
@@ -73,9 +72,11 @@ module Ransack
     def recurse_hash_to_find_viewables(obj)
       if obj.is_a?(Hash)
         obj.each_pair do |key, value|
-          if key == "d" and value == "1"
+          # diplay value can be either a string (include_hidden 'hack' option is set to true or not set)
+          # or an array (include_hidden 'hack' option is set to false)
+          if key == "d" and (value == "1" || (value.is_a? Array and value.first == "1"))
             @display_attrs << obj['a']['0']['name'] if obj.try(:[], 'a').try(:[], '0').try(:[], 'name').present?
-          elsif key == "u" and value == "1"
+          elsif key == "u" and (value == "1" || (value.is_a? Array and value.first == "1"))
             @uniq_attrs << obj['a']['0']['name'] if obj.try(:[], 'a').try(:[], '0').try(:[], 'name').present?
           else
             recurse_hash_to_find_viewables(value)

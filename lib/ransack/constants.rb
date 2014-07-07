@@ -6,7 +6,7 @@ module Ransack
 
     AREL_PREDICATES = %w(bypass eq not_eq matches does_not_match lt lteq gt gteq in not_in)
 
-    DERIVED_PREDICATES = [
+    DERIVED_PREDICATES = [    
       ['cont', {
         :arel_predicate => 'matches',
         :formatter => proc { |v| "%#{escape_wildcards(v)}%" }

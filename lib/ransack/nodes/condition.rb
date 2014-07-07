@@ -25,6 +25,7 @@ module Ransack
             )
             # TODO: Figure out what to do with multiple types of attributes,
             # if anything. Tempted to go with "garbage in, garbage out" here.
+
             if predicate.validate(condition.values, condition.default_type)
               condition
             else
@@ -55,7 +56,13 @@ module Ransack
       alias :u :uniq
 
       def valid?
-        attributes.detect(&:valid?) && predicate && valid_arity? && predicate.validate(values, default_type) && valid_combinator? && (display=="1" || uniq=="1" || predicate.name != "bypass")
+        attributes.detect(&:valid?) && 
+        predicate && 
+        valid_arity? && 
+        (predicate.validate(values, default_type) || predicate.name == "bypass") && 
+        valid_combinator? && 
+        # include_hidden hack
+        (["1", ["1"]].any? { |t| [display, uniq].any? {|viewable| viewable == t }} || predicate.name != "bypass")
       end
 
       def valid_arity?
@@ -189,8 +196,9 @@ module Ransack
 
       def arel_predicate
         predicates = attributes.map do |attr|
-          if predicate.arel_predicate != "bypass"
-            attr.attr.send(predicate.arel_predicate, formatted_values_for_attribute(attr))
+          pred = arel_predicate_for_attribute(attr)
+          if pred != "bypass"
+            attr.attr.send(pred, formatted_values_for_attribute(attr))
           end
         end
 

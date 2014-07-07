@@ -108,17 +108,20 @@ module Ransack
       def predicate_select(options = {}, html_options = {})
         options[:compounds] = true if options[:compounds].nil?
         default = options.delete(:default) || 'cont'
+        keys = Predicate.names
 
-        keys = options[:compounds] ? Predicate.names :
-          Predicate.names.reject { |k| k.match(/_(any|all)$/) }
         if only = options[:only]
           if only.respond_to? :call
             keys = keys.select { |k| only.call(k) }
           else
             only = Array.wrap(only).map(&:to_s)
-            keys = keys.select { |k| only.include? k.sub(/_(any|all)$/, '') }
+            # keys = keys.select { |k| only.include? k.sub(/_(any|all)$/, '') }
+            keys = only & keys
           end
+        elsif options[:compounds]
+          keys = keys.reject { |k| k.match(/_(any|all)$/) }
         end
+
         collection = keys.map { |k| [k, Translate.predicate(k)] }
         object.predicate ||= Predicate.named(default) if can_use_default?(
           default, :predicate, keys
@@ -127,17 +130,26 @@ module Ransack
       end
 
       def combinator_select(options = {}, html_options = {})
+        comb_choices = combinator_choices(options)
         template_collection_select(
-          :m, combinator_choices, options, html_options)
+          :m, comb_choices, options, html_options)
       end
 
 
-      def display_checkbox(options = {}, html_options = {})
-        @template.check_box(@object_name, :d, objectify_options(options), checked_value = "1", @default_options.merge(html_options))
+      def display_checkbox(options = {})
+        if options[:include_hidden]
+          @template.check_box(@object_name, :d, objectify_options(options), checked_value="1", unchecked_value="0")
+        else
+          @template.check_box(@object_name, :d, objectify_options(options.merge({:multiple => true})), checked_value="1", nil)
+        end
       end
 
-      def uniq_checkbox(options = {}, html_options = {})
-        @template.check_box(@object_name, :u, objectify_options(options), checked_value = "1", @default_options.merge(html_options))
+      def uniq_checkbox(options = {})
+        if options[:include_hidden]
+          @template.check_box(@object_name, :u, objectify_options(options), checked_value="1", unchecked_value="0")
+        else
+          @template.check_box(@object_name, :u, objectify_options(options.merge({:multiple => true})), checked_value="1", nil)
+        end      
       end
 
       private
@@ -170,11 +182,14 @@ module Ransack
         [['asc', object.translate('asc')], ['desc', object.translate('desc')]]
       end
 
-      def combinator_choices
+      def combinator_choices(options={})
+        any_text = options.delete(:any).presence || Translate.word(:any)
+        all_text = options.delete(:all).presence || Translate.word(:all)
+
         if Nodes::Condition === object
-          [['or', Translate.word(:any)], ['and', Translate.word(:all)]]
+          [['or', any_text], ['and', all_text]]
         else
-          [['and', Translate.word(:all)], ['or', Translate.word(:any)]]
+          [['and', all_text], ['or', any_text]]
         end
       end
 
