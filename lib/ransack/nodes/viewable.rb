@@ -4,10 +4,10 @@ module Ransack
       attr_reader :attr, :table, :field
 
       class << self
-        def extract(context, str)
-          field = context.contextualize(str)
-          table = ActiveRecord::Base.send(:descendants).detect { |m| m.table_name == field.relation.name }
-          self.new(context).build(:attr=>str, :table=>table, :field=>field)
+        def extract(context, attr)
+          field = context.contextualize(attr.name)
+          table =  attr.context.klassify(attr)
+          self.new(context).build(:attr=>attr, :table=>table, :field=>field)
         end
       end
 

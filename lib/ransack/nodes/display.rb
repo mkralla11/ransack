@@ -13,11 +13,11 @@ module Ransack
       end
 
       def aggregate_column
-        @table._ransackers[@field.name].call(@callable).try(:to_s) + " as " + @attr
+        @table._ransackers[@field.name].call(@callable).try(:to_s) + " as " + @attr.name
       end
 
       def existing_column
-        @table.table_name + "." + @field.name + " as " + @attr
+        @table.table_name + "." + @field.name + " as " + @attr.name
       end
 
     end

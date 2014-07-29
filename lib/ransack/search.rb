@@ -24,7 +24,8 @@ module Ransack
       @context.auth_object = options[:auth_object]
       @base = Nodes::Grouping.new(@context, 'and')
       build(params.with_indifferent_access)
-      recurse_hash_to_find_viewables(params.with_indifferent_access)
+      recurse_to_find_viewables
+      # recurse_hash_to_find_viewables(params.with_indifferent_access)
       build_displays
       build_uniqs
     end
@@ -47,14 +48,14 @@ module Ransack
     end
 
     def build_displays
-      @display_attrs.each do |name|
-        displays << Nodes::Display.extract(@context, name)
+      @display_attrs.each do |a|
+        displays << Nodes::Display.extract(@context, a)
       end
     end
 
     def build_uniqs
-      @uniq_attrs.each do |name|
-        uniqs << Nodes::Uniq.extract(@context, name)
+      @uniq_attrs.each do |a|
+        uniqs << Nodes::Uniq.extract(@context, a)
       end
     end
 
@@ -68,18 +69,15 @@ module Ransack
     end
     alias :u :uniqs
 
-
-    def recurse_hash_to_find_viewables(obj)
-      if obj.is_a?(Hash)
-        obj.each_pair do |key, value|
-          # diplay value can be either a string (include_hidden 'hack' option is set to true or not set)
-          # or an array (include_hidden 'hack' option is set to false)
-          if key == "d" and (value == "1" || (value.is_a? Array and value.first == "1"))
-            @display_attrs << obj['a']['0']['name'] if obj.try(:[], 'a').try(:[], '0').try(:[], 'name').present?
-          elsif key == "u" and (value == "1" || (value.is_a? Array and value.first == "1"))
-            @uniq_attrs << obj['a']['0']['name'] if obj.try(:[], 'a').try(:[], '0').try(:[], 'name').present?
-          else
-            recurse_hash_to_find_viewables(value)
+    def recurse_to_find_viewables
+      self.groupings.each do |g| 
+        g.conditions.each do |c| 
+          c.attributes.each do |a| 
+            if a.display.present?
+              @display_attrs << a
+            elsif a.uniq.present?
+              @uniq_attrs << a
+            end
           end
         end
       end
