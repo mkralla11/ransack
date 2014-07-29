@@ -73,11 +73,8 @@ module Ransack
       self.groupings.each do |g| 
         g.conditions.each do |c| 
           c.attributes.each do |a| 
-            if a.display.present?
-              @display_attrs << a
-            elsif a.uniq.present?
-              @uniq_attrs << a
-            end
+            @display_attrs << a if a.display.present?
+            @uniq_attrs << a if a.uniq.present?
           end
         end
       end
